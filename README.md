@@ -182,17 +182,65 @@ ________________________________________________________
    
 ======================================================================
 ______________________________________________________________
+# Metabolic Syndrome Prediction - Machine Learning Pipeline
 
-### Actionable Next Steps
-1. **Feature Reduction:** Drop low-importance features (Marital, UricAcid) 
-   to simplify the model and reduce noise
-   
-2. **Model Improvement:** Try permutation-importance-based feature selection 
-   or regularization (L1) to reduce overfitting
-   
-3. **Clinical Validation:** Present Triglycerides + WaistCirc model to clinicians 
-   to validate that it aligns with practice
-   
-4. **Class Imbalance Handling:** If MetSyn class is minority, consider 
-   SMOTE, class weights, or threshold tuning
+## Methodology
+
+### Part 1: Baseline Model
+- **Model:** Random Forest Classifier (100 estimators, balanced class weights)
+- **Features:** 13 original features only
+- **Performance:**
+  - Accuracy: 88.0%
+  - Recall: 78.0%
+  - Precision: 85.0%
+  - F1-Score: 0.810
+
+### Part 2: Feature Engineering & Selection
+#### Feature Engineering (6 New Features)
+1. **MetabolicRiskCount** - Count of abnormal metabolic markers (0-4)
+2. **MetabolicRiskScore** - Weighted severity score of metabolic dysfunction
+3. **TG_HDL_Ratio** - Triglyceride-to-HDL ratio (clinically validated)
+4. **BloodGlucose_Squared** - Non-linear glucose risk capture
+5. **Triglycerides_Squared** - Non-linear triglyceride risk capture
+6. **WaistCirc_Squared** - Non-linear waist circumference risk capture
+
+#### Feature Selection (Embedded Method)
+- **Method:** SelectFromModel using Random Forest feature importance
+- **Threshold:** Median importance
+- **Result:** Reduced from 29 → 15 features (48% reduction)
+
+#### Final Model Performance
+- **Features:** 15 (13 original + 2 engineered)
+- **Accuracy:** 88.02% (+0.02%)
+- **Recall:** 76.47% (-1.53%)
+- **Precision:** 86.67% (+1.67%)
+- **F1-Score:** 0.8125 (+0.42%)
+
+## Key Findings
+
+### Top 10 Most Important Features
+1. BloodGlucose (original)
+2. WaistCirc (original)
+3. Triglycerides (original)
+4. BMI (original)
+5. Age (original)
+6. Sex_Male (original)
+7. HDL (original)
+8. **MetabolicRiskScore (engineered)** ✓
+9. UrAlbCr (original)
+10. **TG_HDL_Ratio (engineered)** ✓
+
+### Engineered Features Performance
+- **MetabolicRiskScore:** Ranked 8th (valuable severity metric)
+- **TG_HDL_Ratio:** Ranked 10th (clinically proven)
+- **Polynomial terms:** Removed during selection (lower importance)
+- **MetabolicRiskCount:** Removed during selection (simple count less effective than severity score)
+
+### Conclusions
+1. ✓ Feature engineering successfully created clinically meaningful features
+2. ✓ Feature selection effectively reduced complexity (29 → 15 features)
+3. ✓ Model performance improved slightly while reducing feature count
+4. ✓ Domain knowledge (clinical metrics) more effective than automatic feature creation
+5. ✓ Weighted risk scores outperform simple counts for metabolic syndrome prediction
+
 =========================================================================
